@@ -37,6 +37,7 @@
 
 # Asset files
 !*.uasset
+!*.umap
 
 # ISPC files
 !*.ispc
