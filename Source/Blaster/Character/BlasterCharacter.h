@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "BlasterCharacter.generated.h"
 
+class UWidgetComponent;
+
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter
 {
@@ -17,8 +19,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	FORCEINLINE UWidgetComponent* GetOverheadWidget() const { return OverheadWidget; }
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnRep_PlayerState() override;
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -31,4 +36,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class UCameraComponent* FollowCamera = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* OverheadWidget = nullptr;
 };
