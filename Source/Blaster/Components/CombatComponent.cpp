@@ -20,6 +20,17 @@ void UCombatComponent::BeginPlay()
 	
 }
 
+void UCombatComponent::SetAiming(bool bInAiming)
+{
+	bAiming = bInAiming;
+	ServerSetAiming(bInAiming);
+}
+
+void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
+{
+	bAiming = bInAiming;
+}
+
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -31,6 +42,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, bAiming);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
