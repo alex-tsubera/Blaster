@@ -12,6 +12,7 @@
 #include "Blaster/HUD/OverheadWidget.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Blaster/Components/CombatComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -54,6 +55,7 @@ void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UpdateAimOffset(DeltaTime);
 }
 
 void ABlasterCharacter::OnRep_PlayerState()
@@ -180,6 +182,36 @@ void ABlasterCharacter::AimButtonReleased()
 	{
 		Combat->SetAiming(false);
 	}
+}
+
+void ABlasterCharacter::UpdateAimOffset(float DeltaTime)
+{
+	if (!Combat || !Combat->EquippedWeapon)
+	{
+		return;
+	}
+
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+	FRotator BaseAimRotation = GetBaseAimRotation();
+
+	if (Speed == 0.f && !bIsInAir) // standing still and not jumping
+	{
+		FRotator CurrentAimRotation = FRotator(0.f, BaseAimRotation.Yaw, 0.f);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+		bUseControllerRotationYaw = false;
+	}
+	else
+	{
+		StartingAimRotation = FRotator(0.f, BaseAimRotation.Yaw, 0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = true;
+	}
+
+	AO_Pitch = FRotator::NormalizeAxis(BaseAimRotation.Pitch);
 }
 
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
